@@ -17,11 +17,7 @@ namespace :requirejs do
   # and/or no explicit environment - we have to reinvoke rake to
   # execute this task.
   def invoke_or_reboot_rake_task(task)
-    if ENV['RAILS_GROUPS'].to_s.empty? || ENV['RAILS_ENV'].to_s.empty?
-      ruby_rake_task task
-    else
-      Rake::Task[task].invoke
-    end
+    Rake::Task[task].invoke
   end
 
   requirejs = ActiveSupport::OrderedOptions.new
@@ -32,11 +28,6 @@ namespace :requirejs do
   end
 
   task :setup => ["assets:environment"] do
-    unless Rails.application.config.assets.enabled
-      warn "Cannot precompile assets if sprockets is disabled. Please set config.assets.enabled to true"
-      exit
-    end
-
     # Ensure that action view is loaded and the appropriate
     # sprockets hooks get executed
     _ = ActionView::Base
@@ -82,7 +73,7 @@ EOM
     # We depend on test_node here so we'll fail early and hard if node
     # isn't available.
     task :external => ["requirejs:test_node"] do
-      ruby_rake_task "requirejs:precompile:all"
+      Rake::Task["requirejs:precompile:all"].invoke
     end
 
     # copy all assets to tmp/assets
